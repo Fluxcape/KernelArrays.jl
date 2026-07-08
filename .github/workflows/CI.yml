@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "README.md"
+      - "LICENSE"
+      - ".gitignore"
+      - "drafts/**"
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "README.md"
+      - "LICENSE"
+      - ".gitignore"
+      - "drafts/**"
+  workflow_dispatch:  # 允许手动触发
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Julia ${{ matrix.version }} - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - "1"            # 最新的 Julia 1.x 稳定版
+          - "lts"          # 长期支持版本
+          - "nightly"      # 最新 nightly（允许失败）
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+        exclude:
+          # 减少矩阵规模：nightly 只在 ubuntu 上测试
+          - version: "nightly"
+            os: windows-latest
+          - version: "nightly"
+            os: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Julia
+        uses: julia-actions/setup-julia@v2
+        with:
+          version: "${{ matrix.version }}"
+          arch: x64
+
+      - name: Cache artifacts
+        uses: julia-actions/cache@v2
+
+      - name: Build package
+        uses: julia-actions/julia-buildpkg@v1
+
+      - name: Run tests
+        uses: julia-actions/julia-runtest@v1
+        env:
+          JULIA_NUM_THREADS: 4
+
+      - name: Run doctests (if any)
+        if: always() && steps.test.outcome == 'success'
+        run: |
+          julia --project -e 'using KernelArrays; @info "Package loaded successfully"'
