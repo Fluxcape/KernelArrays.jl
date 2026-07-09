@@ -6,7 +6,7 @@
 
 using Test
 using KernelArrays
-using StaticArraysCore
+using StaticArrays
 
 @testset "abstract type aliases" begin
     @test KernelStaticScalar{Float64} === KernelStaticArray{Tuple{}, Float64, 0}
