@@ -50,20 +50,20 @@ const KS1Matrix{M, N, T <: Real} = KS1Array{Tuple{M, N}, T, 2}
 const KS1SquareMatrix{N, T <: Real} = KS1Array{Tuple{N, N}, T, 2}
 const KS1VecOrMat{T <: Real} = Union{KS1Vector{<:Any, T}, KS1Matrix{<:Any, <:Any, T}}
 
-@inline function __idx(a::KS1Array{S, T, P})::Int where {S <: Tuple, T <: Real, P}
+@inline function _idx(a::KS1Array{S, T, P})::Int where {S <: Tuple, T <: Real, P}
     return getfield(a, :idx_).x
 end
 
-@inline function __data(a::KS1Array{S, T, P}) where {S <: Tuple, T <: Real, P}
+@inline function _data(a::KS1Array{S, T, P}) where {S <: Tuple, T <: Real, P}
     return getfield(a, :data_).x
 end
 
 @inline function Base.getindex(a::KS1Array{S, T, P}, i::Int) where {S <: Tuple, T <: Real, P}
-    return @inbounds __data(a)[__idx(a) + i - 1]
+    return @inbounds _data(a)[_idx(a) + i - 1]
 end
 
 @inline function Base.setindex!(a::KS1Array{S, T, P}, v::Real, i::Int) where {S <: Tuple, T <: Real, P}
-    @inbounds __data(a)[__idx(a) + i - 1] = T(v)
+    @inbounds _data(a)[_idx(a) + i - 1] = T(v)
 end
 
 @inline function idx!(a::KS1Array{S, T, P}, idx::Integer)::Int where {S <: Tuple, T <: Real, P}
@@ -147,24 +147,24 @@ const KS2Matrix{M, N, T <: Real} = KS2Array{Tuple{M, N}, T, 2}
 const KS2SquareMatrix{N, T <: Real} = KS2Array{Tuple{N, N}, T, 2}
 const KS2VecOrMat{T <: Real} = Union{KS2Vector{<:Any, T}, KS2Matrix{<:Any, <:Any, T}}
 
-@inline function __row(a::KS2Array{S, T, P})::Int where {S <: Tuple, T <: Real, P}
+@inline function _row(a::KS2Array{S, T, P})::Int where {S <: Tuple, T <: Real, P}
     return getfield(a, :row_).x
 end
 
-@inline function __col(a::KS2Array{S, T, P})::Int where {S <: Tuple, T <: Real, P}
+@inline function _col(a::KS2Array{S, T, P})::Int where {S <: Tuple, T <: Real, P}
     return getfield(a, :col_).x
 end
 
-@inline function __data(a::KS2Array{S, T, P}) where {S <: Tuple, T <: Real, P}
+@inline function _data(a::KS2Array{S, T, P}) where {S <: Tuple, T <: Real, P}
     return getfield(a, :data_).x
 end
 
 @inline function Base.getindex(a::KS2Array{S, T, P}, i::Int) where {S <: Tuple, T <: Real, P}
-    return @inbounds __data(a)[__row(a), __col(a) + i - 1]
+    return @inbounds _data(a)[_row(a), _col(a) + i - 1]
 end
 
 @inline function Base.setindex!(a::KS2Array{S, T, P}, v::Real, i::Int) where {S <: Tuple, T <: Real, P}
-    @inbounds __data(a)[__row(a), __col(a) + i - 1] = T(v)
+    @inbounds _data(a)[_row(a), _col(a) + i - 1] = T(v)
 end
 
 @inline function row!(a::KS2Array{S, T, P}, r::Integer)::Int where {S <: Tuple, T <: Real, P}
