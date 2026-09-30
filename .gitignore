@@ -5,3 +5,5 @@
 drafts/**
 
 Manifest.toml
+
+*.ipynb
