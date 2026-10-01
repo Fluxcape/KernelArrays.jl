@@ -18,16 +18,16 @@ the slice belonging to one record:
 
 ```julia
 using KernelArrays
+using KernelAbstractions
 
 # x, y, z are device arrays (CuArray, oneArray, …) of Float32
-function kernel(z, x, y)
-    i = get_global_id()              # one record per work item (1-based)
+@kernel function kernel(z, x, y)
+    i = @index(Global)              # one record per work item (1-based)
     xi = KS1Vector{3}(3*(i-1)+1, x) # view of x[3(i-1)+1 : 3i]
     yi = KS1Vector{3}(3*(i-1)+1, y)
     zi = KS1Vector{3}(3*(i-1)+1, z)
     zi .= xi .+ yi                  # elementwise through the views
     zi[1] = xi' * yi                # dot product, allocation-free
-    return
 end
 ```
 

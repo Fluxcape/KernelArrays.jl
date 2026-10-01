@@ -48,20 +48,39 @@ abstract type KernelStaticArray{S, T <: Real, P} <: StaticArraysCore.StaticArray
 
 """
     KernelStaticScalar{T}
-    KernelStaticVector{N, T}
-    KernelStaticMatrix{M, N, T}
-    KernelStaticSquareMatrix{N, T}
-    KernelStaticVecOrMat{T}
 
-Aliases for the abstract [`KernelStaticArray`](@ref) with the dimensionality
-parameter `P` fixed to `0`, `1`, `2`, `2`, and the vector/matrix union,
-respectively. Useful for dispatch — e.g. writing a method that accepts any
-kernel static vector regardless of which concrete subtype it is.
+Alias for `KernelStaticArray{Tuple{}, T, 0}` — a scalar kernel static view.
 """
 const KernelStaticScalar{T} = KernelStaticArray{Tuple{}, T, 0}
+
+"""
+    KernelStaticVector{N, T}
+
+Alias for `KernelStaticArray{Tuple{N}, T, 1}` — a length-`N` kernel static vector.
+"""
 const KernelStaticVector{N, T} = KernelStaticArray{Tuple{N}, T, 1}
+
+"""
+    KernelStaticMatrix{M, N, T}
+
+Alias for `KernelStaticArray{Tuple{M, N}, T, 2}` — an `M×N` kernel static matrix.
+"""
 const KernelStaticMatrix{M, N, T} = KernelStaticArray{Tuple{M, N}, T, 2}
+
+"""
+    KernelStaticSquareMatrix{N, T}
+
+Alias for `KernelStaticArray{Tuple{N, N}, T, 2}` — an `N×N` kernel static square
+matrix.
+"""
 const KernelStaticSquareMatrix{N, T} = KernelStaticArray{Tuple{N, N}, T, 2}
+
+"""
+    KernelStaticVecOrMat{T}
+
+Union of [`KernelStaticVector`](@ref) and [`KernelStaticMatrix`](@ref) with
+element type `T`. Useful for dispatch on any kernel static vector or matrix.
+"""
 const KernelStaticVecOrMat{T} = Union{KernelStaticVector{<:Any, T}, KernelStaticMatrix{<:Any, <:Any, T}}
 
 @inline function Base.Tuple(a::KernelStaticArray{S, T, P})::NTuple{tuple_prod(S), T} where {S <: Tuple, T <: Real, P}
@@ -118,20 +137,41 @@ end
 
 """
     KS1Scalar{T, A}
-    KS1Vector{N, T, A}
-    KS1Matrix{M, N, T, A}
-    KS1SquareMatrix{N, T, A}
-    KS1VecOrMat{T, A}
 
-Convenience aliases for [`KS1Array`](@ref) with `P` fixed to `0`, `1`, `2`, `2`,
-and the vector/matrix union, respectively. The three-argument constructors
-`KS1Vector{N}(idx, data)`, `KS1Matrix{M, N}(idx, data)`, etc. infer `T` and `A`
-from the buffer `data`.
+Alias for `KS1Array{Tuple{}, T, 0, A}` — a scalar view of a 1-D backing buffer.
 """
 const KS1Scalar{T <: Real, A <: AbstractArray{T, 1}} = KS1Array{Tuple{}, T, 0, A}
+
+"""
+    KS1Vector{N, T, A}
+
+Alias for `KS1Array{Tuple{N}, T, 1, A}` — a length-`N` static vector view of a
+1-D backing buffer. Construct with `KS1Vector{N}(idx, data)`.
+"""
 const KS1Vector{N, T <: Real, A <: AbstractArray{T, 1}} = KS1Array{Tuple{N}, T, 1, A}
+
+"""
+    KS1Matrix{M, N, T, A}
+
+Alias for `KS1Array{Tuple{M, N}, T, 2, A}` — an `M×N` static matrix view of a
+1-D backing buffer. Construct with `KS1Matrix{M, N}(idx, data)`.
+"""
 const KS1Matrix{M, N, T <: Real, A <: AbstractArray{T, 1}} = KS1Array{Tuple{M, N}, T, 2, A}
+
+"""
+    KS1SquareMatrix{N, T, A}
+
+Alias for `KS1Array{Tuple{N, N}, T, 2, A}` — an `N×N` static square matrix view
+of a 1-D backing buffer. Construct with `KS1SquareMatrix{N}(idx, data)`.
+"""
 const KS1SquareMatrix{N, T <: Real, A <: AbstractArray{T, 1}} = KS1Array{Tuple{N, N}, T, 2, A}
+
+"""
+    KS1VecOrMat{T, A}
+
+Union of [`KS1Vector`](@ref) and [`KS1Matrix`](@ref) over a 1-D backing buffer
+with element type `T`.
+"""
 const KS1VecOrMat{T <: Real, A <: AbstractArray{T, 1}} = Union{KS1Vector{<:Any, T, A}, KS1Matrix{<:Any, <:Any, T, A}}
 
 @inline function _idx(a::KS1Array{S, T, P, A})::Int where {S <: Tuple, T <: Real, P, A}
@@ -255,20 +295,41 @@ end
 
 """
     KS2Scalar{T, A}
-    KS2Vector{N, T, A}
-    KS2Matrix{M, N, T, A}
-    KS2SquareMatrix{N, T, A}
-    KS2VecOrMat{T, A}
 
-Convenience aliases for [`KS2Array`](@ref) with `P` fixed to `0`, `1`, `2`, `2`,
-and the vector/matrix union, respectively. The four-argument constructors
-`KS2Vector{N}(row, col, data)`, `KS2Matrix{M, N}(row, col, data)`, etc. infer
-`T` and `A` from the buffer `data`.
+Alias for `KS2Array{Tuple{}, T, 0, A}` — a scalar view of a 2-D backing buffer.
 """
 const KS2Scalar{T <: Real, A <: AbstractArray{T, 2}} = KS2Array{Tuple{}, T, 0, A}
+
+"""
+    KS2Vector{N, T, A}
+
+Alias for `KS2Array{Tuple{N}, T, 1, A}` — a length-`N` static vector view of a
+2-D backing buffer. Construct with `KS2Vector{N}(row, col, data)`.
+"""
 const KS2Vector{N, T <: Real, A <: AbstractArray{T, 2}} = KS2Array{Tuple{N}, T, 1, A}
+
+"""
+    KS2Matrix{M, N, T, A}
+
+Alias for `KS2Array{Tuple{M, N}, T, 2, A}` — an `M×N` static matrix view of a
+2-D backing buffer. Construct with `KS2Matrix{M, N}(row, col, data)`.
+"""
 const KS2Matrix{M, N, T <: Real, A <: AbstractArray{T, 2}} = KS2Array{Tuple{M, N}, T, 2, A}
+
+"""
+    KS2SquareMatrix{N, T, A}
+
+Alias for `KS2Array{Tuple{N, N}, T, 2, A}` — an `N×N` static square matrix view
+of a 2-D backing buffer. Construct with `KS2SquareMatrix{N}(row, col, data)`.
+"""
 const KS2SquareMatrix{N, T <: Real, A <: AbstractArray{T, 2}} = KS2Array{Tuple{N, N}, T, 2, A}
+
+"""
+    KS2VecOrMat{T, A}
+
+Union of [`KS2Vector`](@ref) and [`KS2Matrix`](@ref) over a 2-D backing buffer
+with element type `T`.
+"""
 const KS2VecOrMat{T <: Real, A <: AbstractArray{T, 2}} = Union{KS2Vector{<:Any, T, A}, KS2Matrix{<:Any, <:Any, T, A}}
 
 @inline function _row(a::KS2Array{S, T, P, A})::Int where {S <: Tuple, T <: Real, P, A}
