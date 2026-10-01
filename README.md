@@ -1,5 +1,9 @@
 # KernelArrays.jl
 
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://fluxcape.github.io/KernelArrays.jl/stable/)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://fluxcape.github.io/KernelArrays.jl/dev/)
+[![Build Status](https://github.com/Fluxcape/KernelArrays.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/Fluxcape/KernelArrays.jl/actions/workflows/CI.yml)
+
 Lightweight array-like static views for slicing chunks of a flat buffer inside
 GPU kernels.
 
