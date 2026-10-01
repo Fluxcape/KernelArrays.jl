@@ -6,4 +6,8 @@ drafts/**
 
 Manifest.toml
 
+# Documenter build artifacts
+docs/build/
+docs/site/
+
 *.ipynb
