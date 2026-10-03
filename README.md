@@ -3,6 +3,7 @@
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://fluxcape.github.io/KernelArrays.jl/stable/)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://fluxcape.github.io/KernelArrays.jl/dev/)
 [![Build Status](https://github.com/Fluxcape/KernelArrays.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/Fluxcape/KernelArrays.jl/actions/workflows/CI.yml)
+[![codecov](https://codecov.io/gh/Fluxcape/KernelArrays.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/Fluxcape/KernelArrays.jl)
 
 Lightweight array-like static views for slicing chunks of a flat buffer inside
 GPU kernels.
@@ -92,11 +93,11 @@ kernel body rather than passing them across a non-inlined function boundary.
 
 ## Design notes
 
-* `KernelArrays` deliberately extends
-  `Base.:*(u::Adjoint{<:Number,<:StaticVector}, v::StaticVector)` to return
-  `dot(u.parent, v)`. This is type piracy on `StaticArrays`' types — intentional,
-  so `x' * y` works uniformly for any `StaticVector` (including `MVector` and the
-  kernel views) without allocating on the device.
+* `KernelArrays` specializes
+  `Base.:*(u::Adjoint{<:Number, <:KernelStaticVector}, v::StaticVector)` to
+  return `dot(u.parent, v)`, so `x' * y` for a kernel view compiles to a single
+  fused reduction without materializing an `Adjoint` and without allocating on
+  the device.
 * The abstract type `KernelStaticArray{S, T, P}` subtypes
   `StaticArraysCore.StaticArray`, so the views inherit the full `StaticArrays`
   API for free.

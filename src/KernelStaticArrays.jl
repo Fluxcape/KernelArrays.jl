@@ -11,25 +11,13 @@ import StaticArraysCore: tuple_prod
 import StaticArraysCore: Size
 import LinearAlgebra
 
-"""
-    *(u::Adjoint{<:Number, <:StaticVector}, v::StaticVector)
-
-Returns `dot(u.parent, v)` — the real dot product of `u` and `v` — without
-materializing an `Adjoint` wrapper. This extends `Base.:*` so that `x' * y`
-works uniformly for any `StaticVector` and its adjoint (including `MVector` and
-the [`KernelStaticArray`](@ref) views), compiling to a single fused reduction
-with no allocation on the GPU.
-"""
-@inline function Base.:*(u::LinearAlgebra.Adjoint{<:Number, <:StaticArrays.StaticVector}, v::StaticArrays.StaticVector)
-    return StaticArrays.dot(u.parent, v)
-end
-
 export KernelStaticArray
 export KernelStaticScalar, KernelStaticVector, KernelStaticMatrix, KernelStaticSquareMatrix, KernelStaticVecOrMat
 export KS1Array
 export KS1Scalar, KS1Vector, KS1Matrix, KS1SquareMatrix, KS1VecOrMat
 export KS2Array
 export KS2Scalar, KS2Vector, KS2Matrix, KS2SquareMatrix, KS2VecOrMat
+export idx!, row!, col!
 
 """
     KernelStaticArray{S, T, P}
@@ -82,6 +70,18 @@ Union of [`KernelStaticVector`](@ref) and [`KernelStaticMatrix`](@ref) with
 element type `T`. Useful for dispatch on any kernel static vector or matrix.
 """
 const KernelStaticVecOrMat{T} = Union{KernelStaticVector{<:Any, T}, KernelStaticMatrix{<:Any, <:Any, T}}
+
+"""
+    *(u::Adjoint{<:Number, <:KernelStaticVector}, v::StaticVector)
+
+Returns `dot(u.parent, v)` — the real dot product of `u` and `v` — without
+materializing an `Adjoint` wrapper. This specializes `Base.:*` so that `x' * y`
+for a [`KernelStaticVector`](@ref) view and any `StaticVector` compiles to a
+single fused reduction with no allocation on the GPU.
+"""
+@inline function Base.:*(u::LinearAlgebra.Adjoint{<:Number, <:KernelStaticVector}, v::StaticArrays.StaticVector)
+    return StaticArrays.dot(u.parent, v)
+end
 
 @inline function Base.Tuple(a::KernelStaticArray{S, T, P})::NTuple{tuple_prod(S), T} where {S <: Tuple, T <: Real, P}
     L = tuple_prod(S)
@@ -190,6 +190,13 @@ end
     @inbounds _data(a)[_idx(a) + i - 1] = T(v)
 end
 
+"""
+    idx!(a::KS1Array, idx::Integer) -> Int
+
+Re-point `a` at the slice of its backing buffer starting at `idx`, in place.
+The buffer reference is unchanged, so no allocation happens; returns the new
+index.
+"""
 @inline function idx!(a::KS1Array{S, T, P, A}, idx::Integer)::Int where {S <: Tuple, T <: Real, P, A}
     return a.idx_.x = Int(idx)
 end
@@ -352,10 +359,22 @@ end
     @inbounds _data(a)[_row(a), _col(a) + i - 1] = T(v)
 end
 
+"""
+    row!(a::KS2Array, row::Integer) -> Int
+
+Re-point `a` at `row` of its backing buffer, in place. The buffer reference and
+column are unchanged, so no allocation happens; returns the new row index.
+"""
 @inline function row!(a::KS2Array{S, T, P, A}, r::Integer)::Int where {S <: Tuple, T <: Real, P, A}
     return a.row_.x = Int(r)
 end
 
+"""
+    col!(a::KS2Array, col::Integer) -> Int
+
+Re-point `a` at `col` of its backing buffer, in place. The buffer reference and
+row are unchanged, so no allocation happens; returns the new column index.
+"""
 @inline function col!(a::KS2Array{S, T, P, A}, c::Integer)::Int where {S <: Tuple, T <: Real, P, A}
     return a.col_.x = Int(c)
 end

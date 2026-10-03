@@ -9,13 +9,15 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 StaticArraysCore = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
 
 [compat]
+KernelAbstractions = "0.9"
 LinearAlgebra = "1"
 StaticArrays = "1.9"
 StaticArraysCore = "1.4"
 julia = "1.10"
 
 [extras]
+KernelAbstractions = "63c18a36-062a-441e-b654-da1e3ab1ce7c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["KernelAbstractions", "Test"]

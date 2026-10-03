@@ -32,3 +32,11 @@ KS2Matrix
 KS2SquareMatrix
 KS2VecOrMat
 ```
+
+## In-place re-pointing
+
+```@docs
+idx!
+row!
+col!
+```

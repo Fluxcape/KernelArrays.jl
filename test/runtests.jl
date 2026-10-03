@@ -5,8 +5,19 @@
  =#
 
 using Test
+using LinearAlgebra
 using KernelArrays
 using StaticArrays
+using KernelAbstractions
+
+@kernel function add_kernel!(z, x, y)
+    i = @index(Global)
+    xi = KS1Vector{3}(3 * (i - 1) + 1, x)
+    yi = KS1Vector{3}(3 * (i - 1) + 1, y)
+    zi = KS1Vector{3}(3 * (i - 1) + 1, z)
+    zi .= xi .+ yi
+    zi[1] = xi' * yi
+end
 
 @testset "abstract type aliases" begin
     @test KernelStaticScalar{Float64} === KernelStaticArray{Tuple{}, Float64, 0}
@@ -59,4 +70,22 @@ end
     @test all(v3 .≈ 5)
     @test all(v4 .≈ 4)
     @test all((Tuple(m1) .- (2, 2, 2, 2) .≈ 0))
+end
+
+@testset "in-kernel view (CPU backend)" begin
+    n = 4
+    x = randn(Float32, 3n)
+    y = randn(Float32, 3n)
+    z = zeros(Float32, 3n)
+
+    backend = KernelAbstractions.CPU()
+    add_kernel!(backend, n)(z, x, y, ndrange=n)
+    KernelAbstractions.synchronize(backend)
+
+    for i in 1:n
+        a = 3 * (i - 1) + 1
+        b = 3 * i
+        @test z[a] ≈ dot(view(x, a:b), view(y, a:b))
+        @test z[a+1:b] ≈ view(x, a+1:b) .+ view(y, a+1:b)
+    end
 end
